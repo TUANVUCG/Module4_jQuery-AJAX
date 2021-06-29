@@ -1,7 +1,7 @@
 com/codegym/controller/HomeController.java
  com.codegym.controller.HomeController
-com/codegym/configuration/AppInit.java
- com.codegym.configuration.AppInit
+com/codegym/controller/SmartphoneController.java
+ com.codegym.controller.SmartphoneController
 com/codegym/service/ISmartphoneService.java
  com.codegym.service.ISmartphoneService
 com/codegym/repository/ISmartphoneRepository.java
@@ -12,5 +12,5 @@ com/codegym/service/SmartphoneService.java
  com.codegym.service.SmartphoneService
 com/codegym/configuration/AppConfig.java
  com.codegym.configuration.AppConfig
-com/codegym/controller/SmartphoneController.java
- com.codegym.controller.SmartphoneController
+com/codegym/configuration/AppInit.java
+ com.codegym.configuration.AppInit

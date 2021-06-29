@@ -34,30 +34,58 @@
         }
 
         function successHandler() {
+            $('#staticBackdrop').modal('hide');
             $.ajax({
                 type: "GET",
                 //tên API
                 url: "/smartphones",
                 //xử lý khi thành công
-                success: function (smartphones) {
+                success: function (data) {
                     // hien thi danh sach o day
                     let content = '    <tr>\n' +
                         '        <td>Producer</td>\n' +
                         '        <td>Model</td>\n' +
                         '        <td>Price</td>\n' +
                         '        <td>Delete</td>\n' +
+                        '<td>Edit</td>'+
                         '    </tr>';
-                    for (let i = 0; i < smartphones.length; i++) {
-                        content += getSmartphone(smartphones[i]);
+                    for (let i = 0; i <data.length; i++) {
+                        content += getSmartphone(data[i]);
                     }
                     document.getElementById('smartphoneList').innerHTML = content;
+                    $(document).ready(function () {
+                        //sư kiện nào thực hiện Ajax
+                        $('.deleteSmartphone').click(function (event) {
+                            //lay du lieu
+                            let a = $(this);
+                            let smartphoneId = a.attr("href");
+                            // goi ajax
+                            $.ajax({
+                                type: "DELETE",
+                                //tên API
+                                url: `/smartphones/${smartphoneId}`,
+                                //xử lý khi thành công
+                                success: function (data) {
+                                    a.parent().parent().remove();
+                                }
+                            });
+                            //chặn sự kiện mặc định của thẻ
+                            event.preventDefault();
+                        });
+                    })
+
                 }
             });
         }
 
         function getSmartphone(smartphone) {
             return `<tr><td >${smartphone.producer}</td><td >${smartphone.model}</td><td >${smartphone.price}</td>` +
-                `<td><a class="deleteSmartphone" href="${smartphone.id}">Delete</a></td></tr>`;
+                `<td><a class="deleteSmartphone" href="${smartphone.id}">Delete</a></td><td>
+            <button onClick="findSmartPhone(this.id)" type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#staticBackdrop" id="${smartphone.id}">
+                Edit
+            </button>
+        </td></tr>`;
         }
 
         $(document).ready(function () {
@@ -81,6 +109,8 @@
             });
         })
     </script>
+    <!-- jQuery -->
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
@@ -114,20 +144,18 @@
         <td>Producer</td>
         <td>Model</td>
         <td>Price</td>
-        <td>Edit</td>
-        <td>Delete</td>
+        <td colspan="2"></td>
     </tr>
     <th:block th:each="smartphone: ${smartphones}">
         <tr>
             <td th:text="${smartphone.producer}"></td>
             <td th:text="${smartphone.model}"></td>
             <td th:text="${smartphone.price}"></td>
-            <td><a class="deleteSmartphone" th:href="${smartphone.getId()}">Delete</a></td>
-            <!--            <td><a class="editSmartphone" th:href="${smartphone.getId()}">Edit</a></td>-->
+                <td><a class="deleteSmartphone" th:href="${smartphone.id}">Delete</a></td>
             <td>
                 <button onclick="findSmartPhone(this.id)" type="button" class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#staticBackdrop" th:id="${smartphone.getId()}">
-                    Edit
+                        data-bs-target="#staticBackdrop" th:id="${smartphone.id}">
+                    <Edit></Edit>
                 </button>
             </td>
         </tr>
@@ -140,44 +168,65 @@
             type: "get",
             url: url,
             success: function (data) {
-                console.log(data)
-                let modal = document.getElementById("modal");
-                let content=
-                    "<table border=\"1px\">\n" +
-                    "                                    <tr>\n" +
-                    "                                        <td>Producer</td>\n" +
-                    "                                        <td>Model</td>\n" +
-                    "                                        <td>Price</td>\n" +
-                    "                                    </tr>\n" +
-                    "                                        <tr>\n" +
-                    "                                            <td><input th:value="+${data.producer}+"/></td>\n" +
-                    "                                            <td><input th:value="+${data.model}+"/></td>\n" +
-                    "                                            <td><input th:value="+${data.price}+"/></td>\n" +
-                    "                                        </tr>\n" +
-                    "                                </table>";
-                modal.innerHTML = content;
+                $('#priceUpdate').val(data.price)
+                $('#producerUpdate').val(data.producer)
+                $('#modelUpdate').val(data.model)
+                $('#idUpdate').val(data.id)
+                $(document).ready(function () {
+                    //sư kiện nào thực hiện Ajax
+                    $('#updateButton').click(function (event) {
+                        let producer = $('#producerUpdate').val();
+                        let model = $('#modelUpdate').val();
+                        let price = $('#priceUpdate').val();
+                        let id = $('#idUpdate').val();
+                        let updateSmartphone = {
+                            producer: producer,
+                            model: model,
+                            price: price
+                        }
+                        $.ajax({
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            type: 'PUT',
+                            data: JSON.stringify(updateSmartphone),
+                            url: "/smartphones/" + id,
+                            success: successHandler
+                        });
+                        event.preventDefault();
+                    });
+                })
             }
-        });
-        event.preventDefault();
+        })
     }
-
 </script>
-<!--<p id="modal"></p>-->
-<!-- Modal -->
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-     aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="modal">
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Understood</button>
+<div id="popup">
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Form Update</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal">
+                    <input type="hidden" id="idUpdate">
+                    <label for="producer">Producer</label>
+                    <input type="text" id="producerUpdate">
+                </div>
+                <div>
+                    <label for="model">Model</label>
+                    <input type="text" id="modelUpdate">
+                </div>
+                <div>
+                    <label for="price">Price</label>
+                    <input type="text"  id="priceUpdate">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="updateButton" type="button" class="btn btn-primary">Update</button>
+                </div>
             </div>
         </div>
     </div>

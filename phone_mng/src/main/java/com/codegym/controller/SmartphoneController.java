@@ -54,12 +54,14 @@ public class SmartphoneController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Smartphone> editById(@PathVariable Long id, @RequestBody Smartphone smartphone) {
+    public ResponseEntity<Smartphone> editById(@PathVariable Long id ,@RequestBody Smartphone smartphone) {
         Optional<Smartphone> smartphoneOptional = smartphoneService.findById(id);
         if (!smartphoneOptional.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         smartphone.setId(id);
         return new ResponseEntity<>(smartphoneService.save(smartphone), HttpStatus.OK);
+
     }
+
 }
