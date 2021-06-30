@@ -3,6 +3,8 @@ package com.codegym.service;
 import com.codegym.model.Smartphone;
 import com.codegym.repository.ISmartphoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -31,5 +33,15 @@ public class SmartphoneService implements ISmartphoneService{
     @Override
     public void remove(Long id) {
         smartphoneRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Smartphone> findAllByProducerContaining(String q, Pageable pageable) {
+        return smartphoneRepository.findAllByProducerContaining(q,pageable);
+    }
+
+    @Override
+    public Page<Smartphone> findAll(Pageable pageable) {
+        return smartphoneRepository.findAll(pageable);
     }
 }

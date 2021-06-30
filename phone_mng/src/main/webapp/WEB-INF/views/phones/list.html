@@ -42,7 +42,7 @@
                 //xử lý khi thành công
                 success: function (data) {
                     // hien thi danh sach o day
-                    let content = '    <tr>\n' +
+                    let content = '<tr>\n' +
                         '        <td>Producer</td>\n' +
                         '        <td>Model</td>\n' +
                         '        <td>Price</td>\n' +
@@ -139,6 +139,10 @@
     </table>
 </form>
 <h1>Smartphone List</h1>
+<form>
+    <input  id="q" type="text" placeholder="Search by producer">
+    <button id="button-search"  onclick="findByProducer()">Search</button>
+</form>
 <table id="smartphoneList" border="1px">
     <tr>
         <td>Producer</td>
@@ -154,8 +158,7 @@
                 <td><a class="deleteSmartphone" th:href="${smartphone.id}">Delete</a></td>
             <td>
                 <button onclick="findSmartPhone(this.id)" type="button" class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#staticBackdrop" th:id="${smartphone.id}">
-                    <Edit></Edit>
+                        data-bs-target="#staticBackdrop" th:id="${smartphone.id}">Edit
                 </button>
             </td>
         </tr>
@@ -199,6 +202,48 @@
                 })
             }
         })
+    }
+    function findByProducer(){
+        let q = $('#q').val();
+        $.ajax({
+            type:"get",
+            url:`/smartphones?q=${q}`,
+            success : function (data) {
+            // hien thi danh sach o day
+            let content = '<tr>\n' +
+                '        <td>Producer</td>\n' +
+                '        <td>Model</td>\n' +
+                '        <td>Price</td>\n' +
+                '        <td>Delete</td>\n' +
+                '<td>Edit</td>'+
+                '    </tr>';
+            for (let i = 0; i <data.length; i++) {
+                content += getSmartphone(data[i]);
+            }
+            document.getElementById('smartphoneList').innerHTML = content;
+            $(document).ready(function () {
+                //sư kiện nào thực hiện Ajax
+                $('.deleteSmartphone').click(function (event) {
+                    //lay du lieu
+                    let a = $(this);
+                    let smartphoneId = a.attr("href");
+                    // goi ajax
+                    $.ajax({
+                        type: "DELETE",
+                        //tên API
+                        url: `/smartphones/${smartphoneId}`,
+                        //xử lý khi thành công
+                        success: function (data) {
+                            a.parent().parent().remove();
+                        }
+                    });
+                    //chặn sự kiện mặc định của thẻ
+                    event.preventDefault();
+                });
+            })
+        }
+        })
+        event.preventDefault()
     }
 </script>
 <div id="popup">
